@@ -1,0 +1,12 @@
+# IntelliJ
+/*.iml
+/.idea/
+
+# Maven
+/target/
+
+# Maven HPI Plugin
+/work/
+
+# Mac OS X
+.DS_Store
