@@ -9,7 +9,7 @@
     </parent>
     <groupId>io.jenkins.plugins</groupId>
     <artifactId>environment-filter-utils</artifactId>
-    <version>${revision}${changelist}</version>
+    <version>1.0</version>
     <packaging>hpi</packaging>
     <properties>
         <revision>1.0</revision>
@@ -31,7 +31,8 @@
         <connection>scm:git:git://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
         <developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
-    </scm>
+      <tag>environment-filter-utils-1.0</tag>
+  </scm>
 
     <repositories>
         <repository>
