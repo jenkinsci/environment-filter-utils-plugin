@@ -24,7 +24,7 @@ THE SOFTWARE.
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
     <f:entry field="regex" title="${%regex}">
-        <f:textbox />
+        <f:textbox checkMethod="post" />
     </f:entry>
     <f:validateButton method="testRegex" with="regex" title="${%Find Matching Items}"/>
 </j:jelly>

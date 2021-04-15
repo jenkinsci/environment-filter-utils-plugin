@@ -33,9 +33,12 @@ import jenkins.model.Jenkins;
 import org.jenkinsci.Symbol;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
+import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.interceptor.RequirePOST;
+import org.kohsuke.stapler.verb.POST;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -84,6 +87,7 @@ public class RegexJobFullNameRunMatcher implements RunMatcher {
          * Checks if the regular expression is valid.
          */
         // used by Jelly view
+        @POST
         public FormValidation doCheckRegex(@QueryParameter String value) {
             String v = Util.fixEmpty(value);
             if (v != null) {
@@ -97,7 +101,18 @@ public class RegexJobFullNameRunMatcher implements RunMatcher {
             return FormValidation.ok();
         }
 
-        public FormValidation doTestRegex(@QueryParameter String regex) {
+        @RequirePOST
+        public FormValidation doTestRegex(@QueryParameter String regex, @AncestorInPath Item context) {
+            if (context == null) {
+                if (!Jenkins.get().hasPermission(Jenkins.ADMINISTER)) {
+                    return FormValidation.ok();
+                }
+            } else {
+                if (!context.hasPermission(Item.CONFIGURE)) {
+                    return FormValidation.ok();
+                }
+            }
+
             FormValidation check = doCheckRegex(regex);
             if (check.kind != FormValidation.Kind.OK) {
                 return FormValidation.error(Messages.RegexJobFullNameBuildMatcher_Validation_Invalid());

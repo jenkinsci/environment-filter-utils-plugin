@@ -36,6 +36,7 @@ import org.kohsuke.accmod.restrictions.NoExternalUse;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.verb.POST;
 
 import javax.annotation.Nonnull;
 
@@ -71,6 +72,7 @@ public class ExactJobFullNameRunMatcher implements RunMatcher {
             return Messages.ExactJobFullNameBuildMatcher_DisplayName();
         }
 
+        @POST
         public FormValidation doCheckName(@QueryParameter String value) {
             if (Jenkins.get().getItemByFullName(value) == null) {
                 return FormValidation.warning(Messages.ExactJobFullNameBuildMatcher_Validation_NotFound(value));
