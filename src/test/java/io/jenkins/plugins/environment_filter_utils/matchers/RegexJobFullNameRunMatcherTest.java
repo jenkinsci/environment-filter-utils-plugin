@@ -23,6 +23,9 @@
  */
 package io.jenkins.plugins.environment_filter_utils.matchers;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
 import hudson.model.Result;
@@ -32,48 +35,45 @@ import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.MockFolder;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-
 public class RegexJobFullNameRunMatcherTest {
 
     @Rule
     public JenkinsRule j = new JenkinsRule();
-    
+
     @Test
     public void testSingle() throws Exception {
         RegexJobFullNameRunMatcher matcher = new RegexJobFullNameRunMatcher();
         matcher.setRegex("job-[A-Z]");
-        
-        {// regular case
+
+        { // regular case
             FreeStyleProject project = j.createFreeStyleProject("job-A");
             FreeStyleBuild build = j.assertBuildStatus(Result.SUCCESS, project.scheduleBuild2(0));
 
             assertThat(matcher.test(build), equalTo(true));
         }
-        
-        {// not matching directly
+
+        { // not matching directly
             FreeStyleProject project = j.createFreeStyleProject("job-2");
             FreeStyleBuild build = j.assertBuildStatus(Result.SUCCESS, project.scheduleBuild2(0));
-            
+
             assertThat(matcher.test(build), equalTo(false));
         }
-        
-        {// contains information before
+
+        { // contains information before
             FreeStyleProject project = j.createFreeStyleProject("somewords_before_job-A");
             FreeStyleBuild build = j.assertBuildStatus(Result.SUCCESS, project.scheduleBuild2(0));
-            
+
             assertThat(matcher.test(build), equalTo(false));
         }
-        
-        {// contains information after
+
+        { // contains information after
             FreeStyleProject project = j.createFreeStyleProject("job-AB");
             FreeStyleBuild build = j.assertBuildStatus(Result.SUCCESS, project.scheduleBuild2(0));
-            
+
             assertThat(matcher.test(build), equalTo(false));
         }
     }
-    
+
     @Test
     public void testWithinFolder() throws Exception {
         RegexJobFullNameRunMatcher matcherOnlyA = new RegexJobFullNameRunMatcher();
@@ -82,32 +82,32 @@ public class RegexJobFullNameRunMatcherTest {
         matcherAnyFolder.setRegex(".*/.*");
         RegexJobFullNameRunMatcher matcherDirectJob = new RegexJobFullNameRunMatcher();
         matcherDirectJob.setRegex("[^/]+");
-    
+
         MockFolder folderA = j.createFolder("folderA");
         MockFolder folderB = j.createFolder("folderB");
-    
-        {// job inside the folder A
+
+        { // job inside the folder A
             FreeStyleProject project = folderA.createProject(FreeStyleProject.class, "job inside first folder");
             FreeStyleBuild build = j.assertBuildStatus(Result.SUCCESS, project.scheduleBuild2(0));
-        
+
             assertThat(matcherOnlyA.test(build), equalTo(true));
             assertThat(matcherAnyFolder.test(build), equalTo(true));
             assertThat(matcherDirectJob.test(build), equalTo(false));
         }
-    
-        {// job inside the folder B
+
+        { // job inside the folder B
             FreeStyleProject project = folderB.createProject(FreeStyleProject.class, "job inside second folder");
             FreeStyleBuild build = j.assertBuildStatus(Result.SUCCESS, project.scheduleBuild2(0));
-        
+
             assertThat(matcherOnlyA.test(build), equalTo(false));
             assertThat(matcherAnyFolder.test(build), equalTo(true));
             assertThat(matcherDirectJob.test(build), equalTo(false));
         }
-    
-        {// job at root level
+
+        { // job at root level
             FreeStyleProject project = j.createFreeStyleProject("job root level");
             FreeStyleBuild build = j.assertBuildStatus(Result.SUCCESS, project.scheduleBuild2(0));
-        
+
             assertThat(matcherOnlyA.test(build), equalTo(false));
             assertThat(matcherAnyFolder.test(build), equalTo(false));
             assertThat(matcherDirectJob.test(build), equalTo(true));

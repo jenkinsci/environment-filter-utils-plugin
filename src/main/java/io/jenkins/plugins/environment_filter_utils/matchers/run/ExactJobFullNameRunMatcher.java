@@ -29,6 +29,7 @@ import hudson.model.Descriptor;
 import hudson.model.Item;
 import hudson.model.Run;
 import hudson.util.FormValidation;
+import javax.annotation.Nonnull;
 import jenkins.model.Jenkins;
 import org.jenkinsci.Symbol;
 import org.kohsuke.accmod.Restricted;
@@ -38,15 +39,12 @@ import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.verb.POST;
 
-import javax.annotation.Nonnull;
-
 @Restricted(NoExternalUse.class)
 public class ExactJobFullNameRunMatcher implements RunMatcher {
     private String name;
 
     @DataBoundConstructor
-    public ExactJobFullNameRunMatcher() {
-    }
+    public ExactJobFullNameRunMatcher() {}
 
     @DataBoundSetter
     public void setName(String name) {

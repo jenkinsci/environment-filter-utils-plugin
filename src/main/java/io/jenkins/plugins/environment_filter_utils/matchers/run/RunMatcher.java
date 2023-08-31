@@ -28,10 +28,9 @@ import hudson.ExtensionPoint;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
 import hudson.model.Run;
-import jenkins.model.Jenkins;
-
 import java.io.Serializable;
 import java.util.function.Predicate;
+import jenkins.model.Jenkins;
 
 /**
  * Utility class that allows matching a build.

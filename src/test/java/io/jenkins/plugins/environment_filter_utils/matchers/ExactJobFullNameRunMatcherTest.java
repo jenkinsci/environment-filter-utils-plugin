@@ -23,6 +23,9 @@
  */
 package io.jenkins.plugins.environment_filter_utils.matchers;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
 import hudson.model.Result;
@@ -32,75 +35,72 @@ import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.MockFolder;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-
 public class ExactJobFullNameRunMatcherTest {
 
     @Rule
     public JenkinsRule j = new JenkinsRule();
-    
+
     @Test
     public void testSingle() throws Exception {
         ExactJobFullNameRunMatcher matcher = new ExactJobFullNameRunMatcher();
         matcher.setName("job-ok");
-        
-        {// regular case, perfect match
+
+        { // regular case, perfect match
             FreeStyleProject project = j.createFreeStyleProject("job-ok");
             FreeStyleBuild build = j.assertBuildStatus(Result.SUCCESS, project.scheduleBuild2(0));
-            
+
             assertThat(matcher.test(build), equalTo(true));
         }
-        
-        {// regular case, name does not match
+
+        { // regular case, name does not match
             FreeStyleProject project = j.createFreeStyleProject("job-not-ok");
             FreeStyleBuild build = j.assertBuildStatus(Result.SUCCESS, project.scheduleBuild2(0));
-            
+
             assertThat(matcher.test(build), equalTo(false));
         }
     }
-    
+
     @Test
     public void testWithSpaceAndComma() throws Exception {
         ExactJobFullNameRunMatcher matcher = new ExactJobFullNameRunMatcher();
         matcher.setName("job with space, and comma");
-    
+
         FreeStyleProject project = j.createFreeStyleProject("job with space, and comma");
         FreeStyleBuild build = j.assertBuildStatus(Result.SUCCESS, project.scheduleBuild2(0));
-    
+
         assertThat(matcher.test(build), equalTo(true));
     }
-    
+
     @Test
     public void testWithinFolder() throws Exception {
         ExactJobFullNameRunMatcher matcherFolderA = new ExactJobFullNameRunMatcher();
         matcherFolderA.setName("folderA/job1");
         ExactJobFullNameRunMatcher matcherDirectJob = new ExactJobFullNameRunMatcher();
         matcherDirectJob.setName("job1");
-        
+
         MockFolder folderA = j.createFolder("folderA");
         MockFolder folderB = j.createFolder("folderB");
-        
-        {// job inside the folder A
+
+        { // job inside the folder A
             FreeStyleProject project = folderA.createProject(FreeStyleProject.class, "job1");
             FreeStyleBuild build = j.assertBuildStatus(Result.SUCCESS, project.scheduleBuild2(0));
-            
+
             assertThat(matcherFolderA.test(build), equalTo(true));
             assertThat(matcherDirectJob.test(build), equalTo(false));
         }
-        
-        {// job inside the folder B
+
+        { // job inside the folder B
             FreeStyleProject project = folderB.createProject(FreeStyleProject.class, "job2");
             FreeStyleBuild build = j.assertBuildStatus(Result.SUCCESS, project.scheduleBuild2(0));
-            
+
             assertThat(matcherFolderA.test(build), equalTo(false));
             assertThat(matcherDirectJob.test(build), equalTo(false));
         }
-        
-        {// job inside the folder B
+
+        { // job inside the folder B
             FreeStyleProject project = j.createFreeStyleProject("job1");
             FreeStyleBuild build = j.assertBuildStatus(Result.SUCCESS, project.scheduleBuild2(0));
-            
+
             assertThat(matcherFolderA.test(build), equalTo(false));
             assertThat(matcherDirectJob.test(build), equalTo(true));
         }
