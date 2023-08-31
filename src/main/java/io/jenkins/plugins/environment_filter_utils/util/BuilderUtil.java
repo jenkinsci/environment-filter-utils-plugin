@@ -25,12 +25,11 @@ package io.jenkins.plugins.environment_filter_utils.util;
 
 import hudson.ExtensionList;
 import hudson.model.Descriptor;
+import java.util.List;
+import java.util.stream.Collectors;
 import jenkins.tasks.filters.EnvVarsFilterableBuilder;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Restricted(NoExternalUse.class)
 public class BuilderUtil {
@@ -42,7 +41,9 @@ public class BuilderUtil {
      */
     @SuppressWarnings("unchecked")
     public static List<Class<EnvVarsFilterableBuilder>> allBuilders() {
-        return allDescriptors().stream().map(descriptor -> (Class<EnvVarsFilterableBuilder>) descriptor.clazz).collect(Collectors.toList());
+        return allDescriptors().stream()
+                .map(descriptor -> (Class<EnvVarsFilterableBuilder>) descriptor.clazz)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -52,6 +53,8 @@ public class BuilderUtil {
      * @return a list of descriptors
      */
     public static List<Descriptor> allDescriptors() {
-        return ExtensionList.lookup(Descriptor.class).stream().filter(d -> d.isSubTypeOf(EnvVarsFilterableBuilder.class)).collect(Collectors.toList());
+        return ExtensionList.lookup(Descriptor.class).stream()
+                .filter(d -> d.isSubTypeOf(EnvVarsFilterableBuilder.class))
+                .collect(Collectors.toList());
     }
 }

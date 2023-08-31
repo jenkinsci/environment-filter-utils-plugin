@@ -29,6 +29,12 @@ import hudson.model.Descriptor;
 import hudson.model.Item;
 import hudson.model.Run;
 import hudson.util.FormValidation;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import jenkins.model.Jenkins;
 import org.jenkinsci.Symbol;
 import org.kohsuke.accmod.Restricted;
@@ -40,20 +46,12 @@ import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 import org.kohsuke.stapler.verb.POST;
 
-import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-import java.util.stream.Collectors;
-
 @Restricted(NoExternalUse.class)
 public class RegexJobFullNameRunMatcher implements RunMatcher {
     private String regex;
 
     @DataBoundConstructor
-    public RegexJobFullNameRunMatcher() {
-    }
+    public RegexJobFullNameRunMatcher() {}
 
     @DataBoundSetter
     public void setRegex(String regex) {
@@ -67,7 +65,7 @@ public class RegexJobFullNameRunMatcher implements RunMatcher {
 
     @Override
     public boolean test(@Nonnull Run<?, ?> run) {
-        if(regex == null){
+        if (regex == null) {
             // should not happen but better safe than sorry
             return false;
         }
@@ -139,11 +137,18 @@ public class RegexJobFullNameRunMatcher implements RunMatcher {
             }
 
             if (excessMatches) {
-                return FormValidation.okWithMarkup(Messages.RegexJobFullNameBuildMatcher_Validation_FoundMore(Util.xmlEscape(regex),
-                                matchingJobNames.stream().map( it -> Messages.RegexJobFullNameBuildMatcher_Validation_FoundEntry(Util.xmlEscape(it))).collect(Collectors.joining())));
+                return FormValidation.okWithMarkup(Messages.RegexJobFullNameBuildMatcher_Validation_FoundMore(
+                        Util.xmlEscape(regex),
+                        matchingJobNames.stream()
+                                .map(it ->
+                                        Messages.RegexJobFullNameBuildMatcher_Validation_FoundEntry(Util.xmlEscape(it)))
+                                .collect(Collectors.joining())));
             }
-            return FormValidation.okWithMarkup(Messages.RegexJobFullNameBuildMatcher_Validation_Found(Util.xmlEscape(regex),
-                    matchingJobNames.stream().map( it -> Messages.RegexJobFullNameBuildMatcher_Validation_FoundEntry(Util.xmlEscape(it))).collect(Collectors.joining())));
+            return FormValidation.okWithMarkup(Messages.RegexJobFullNameBuildMatcher_Validation_Found(
+                    Util.xmlEscape(regex),
+                    matchingJobNames.stream()
+                            .map(it -> Messages.RegexJobFullNameBuildMatcher_Validation_FoundEntry(Util.xmlEscape(it)))
+                            .collect(Collectors.joining())));
         }
     }
 }

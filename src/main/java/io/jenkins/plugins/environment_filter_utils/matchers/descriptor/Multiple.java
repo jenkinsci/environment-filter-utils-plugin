@@ -25,9 +25,8 @@ package io.jenkins.plugins.environment_filter_utils.matchers.descriptor;
 
 import hudson.Extension;
 import hudson.model.Descriptor;
-import org.kohsuke.stapler.DataBoundConstructor;
-
 import java.util.List;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 public class Multiple implements DescriptorMatcher {
     private final List<String> descriptorClassNames;

@@ -27,12 +27,12 @@ import hudson.ExtensionList;
 import hudson.ExtensionPoint;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
-import jenkins.model.Jenkins;
-
 import java.io.Serializable;
 import java.util.function.Predicate;
+import jenkins.model.Jenkins;
 
-public interface DescriptorMatcher extends Describable<DescriptorMatcher>, Serializable, ExtensionPoint, Predicate<Descriptor<?>> {
+public interface DescriptorMatcher
+        extends Describable<DescriptorMatcher>, Serializable, ExtensionPoint, Predicate<Descriptor<?>> {
 
     /**
      * All registered {@link DescriptorMatcher}s.
