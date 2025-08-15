@@ -28,54 +28,59 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
-import hudson.model.Result;
 import io.jenkins.plugins.environment_filter_utils.matchers.run.RegexJobFullNameRunMatcher;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.MockFolder;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
-public class RegexJobFullNameRunMatcherTest {
+@WithJenkins
+class RegexJobFullNameRunMatcherTest {
 
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+    private JenkinsRule j;
+
+    @BeforeEach
+    void setUp(JenkinsRule rule) {
+        j = rule;
+    }
 
     @Test
-    public void testSingle() throws Exception {
+    void testSingle() throws Exception {
         RegexJobFullNameRunMatcher matcher = new RegexJobFullNameRunMatcher();
         matcher.setRegex("job-[A-Z]");
 
         { // regular case
             FreeStyleProject project = j.createFreeStyleProject("job-A");
-            FreeStyleBuild build = j.assertBuildStatus(Result.SUCCESS, project.scheduleBuild2(0));
+            FreeStyleBuild build = j.buildAndAssertSuccess(project);
 
             assertThat(matcher.test(build), equalTo(true));
         }
 
         { // not matching directly
             FreeStyleProject project = j.createFreeStyleProject("job-2");
-            FreeStyleBuild build = j.assertBuildStatus(Result.SUCCESS, project.scheduleBuild2(0));
+            FreeStyleBuild build = j.buildAndAssertSuccess(project);
 
             assertThat(matcher.test(build), equalTo(false));
         }
 
         { // contains information before
             FreeStyleProject project = j.createFreeStyleProject("somewords_before_job-A");
-            FreeStyleBuild build = j.assertBuildStatus(Result.SUCCESS, project.scheduleBuild2(0));
+            FreeStyleBuild build = j.buildAndAssertSuccess(project);
 
             assertThat(matcher.test(build), equalTo(false));
         }
 
         { // contains information after
             FreeStyleProject project = j.createFreeStyleProject("job-AB");
-            FreeStyleBuild build = j.assertBuildStatus(Result.SUCCESS, project.scheduleBuild2(0));
+            FreeStyleBuild build = j.buildAndAssertSuccess(project);
 
             assertThat(matcher.test(build), equalTo(false));
         }
     }
 
     @Test
-    public void testWithinFolder() throws Exception {
+    void testWithinFolder() throws Exception {
         RegexJobFullNameRunMatcher matcherOnlyA = new RegexJobFullNameRunMatcher();
         matcherOnlyA.setRegex("folderA/.*");
         RegexJobFullNameRunMatcher matcherAnyFolder = new RegexJobFullNameRunMatcher();
@@ -88,7 +93,7 @@ public class RegexJobFullNameRunMatcherTest {
 
         { // job inside the folder A
             FreeStyleProject project = folderA.createProject(FreeStyleProject.class, "job inside first folder");
-            FreeStyleBuild build = j.assertBuildStatus(Result.SUCCESS, project.scheduleBuild2(0));
+            FreeStyleBuild build = j.buildAndAssertSuccess(project);
 
             assertThat(matcherOnlyA.test(build), equalTo(true));
             assertThat(matcherAnyFolder.test(build), equalTo(true));
@@ -97,7 +102,7 @@ public class RegexJobFullNameRunMatcherTest {
 
         { // job inside the folder B
             FreeStyleProject project = folderB.createProject(FreeStyleProject.class, "job inside second folder");
-            FreeStyleBuild build = j.assertBuildStatus(Result.SUCCESS, project.scheduleBuild2(0));
+            FreeStyleBuild build = j.buildAndAssertSuccess(project);
 
             assertThat(matcherOnlyA.test(build), equalTo(false));
             assertThat(matcherAnyFolder.test(build), equalTo(true));
@@ -106,7 +111,7 @@ public class RegexJobFullNameRunMatcherTest {
 
         { // job at root level
             FreeStyleProject project = j.createFreeStyleProject("job root level");
-            FreeStyleBuild build = j.assertBuildStatus(Result.SUCCESS, project.scheduleBuild2(0));
+            FreeStyleBuild build = j.buildAndAssertSuccess(project);
 
             assertThat(matcherOnlyA.test(build), equalTo(false));
             assertThat(matcherAnyFolder.test(build), equalTo(false));
