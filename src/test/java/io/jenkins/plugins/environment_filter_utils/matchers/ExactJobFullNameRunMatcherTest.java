@@ -28,51 +28,56 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
-import hudson.model.Result;
 import io.jenkins.plugins.environment_filter_utils.matchers.run.ExactJobFullNameRunMatcher;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.MockFolder;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
-public class ExactJobFullNameRunMatcherTest {
+@WithJenkins
+class ExactJobFullNameRunMatcherTest {
 
-    @Rule
-    public JenkinsRule j = new JenkinsRule();
+    private JenkinsRule j;
+
+    @BeforeEach
+    void setUp(JenkinsRule rule) {
+        j = rule;
+    }
 
     @Test
-    public void testSingle() throws Exception {
+    void testSingle() throws Exception {
         ExactJobFullNameRunMatcher matcher = new ExactJobFullNameRunMatcher();
         matcher.setName("job-ok");
 
         { // regular case, perfect match
             FreeStyleProject project = j.createFreeStyleProject("job-ok");
-            FreeStyleBuild build = j.assertBuildStatus(Result.SUCCESS, project.scheduleBuild2(0));
+            FreeStyleBuild build = j.buildAndAssertSuccess(project);
 
             assertThat(matcher.test(build), equalTo(true));
         }
 
         { // regular case, name does not match
             FreeStyleProject project = j.createFreeStyleProject("job-not-ok");
-            FreeStyleBuild build = j.assertBuildStatus(Result.SUCCESS, project.scheduleBuild2(0));
+            FreeStyleBuild build = j.buildAndAssertSuccess(project);
 
             assertThat(matcher.test(build), equalTo(false));
         }
     }
 
     @Test
-    public void testWithSpaceAndComma() throws Exception {
+    void testWithSpaceAndComma() throws Exception {
         ExactJobFullNameRunMatcher matcher = new ExactJobFullNameRunMatcher();
         matcher.setName("job with space, and comma");
 
         FreeStyleProject project = j.createFreeStyleProject("job with space, and comma");
-        FreeStyleBuild build = j.assertBuildStatus(Result.SUCCESS, project.scheduleBuild2(0));
+        FreeStyleBuild build = j.buildAndAssertSuccess(project);
 
         assertThat(matcher.test(build), equalTo(true));
     }
 
     @Test
-    public void testWithinFolder() throws Exception {
+    void testWithinFolder() throws Exception {
         ExactJobFullNameRunMatcher matcherFolderA = new ExactJobFullNameRunMatcher();
         matcherFolderA.setName("folderA/job1");
         ExactJobFullNameRunMatcher matcherDirectJob = new ExactJobFullNameRunMatcher();
@@ -83,7 +88,7 @@ public class ExactJobFullNameRunMatcherTest {
 
         { // job inside the folder A
             FreeStyleProject project = folderA.createProject(FreeStyleProject.class, "job1");
-            FreeStyleBuild build = j.assertBuildStatus(Result.SUCCESS, project.scheduleBuild2(0));
+            FreeStyleBuild build = j.buildAndAssertSuccess(project);
 
             assertThat(matcherFolderA.test(build), equalTo(true));
             assertThat(matcherDirectJob.test(build), equalTo(false));
@@ -91,7 +96,7 @@ public class ExactJobFullNameRunMatcherTest {
 
         { // job inside the folder B
             FreeStyleProject project = folderB.createProject(FreeStyleProject.class, "job2");
-            FreeStyleBuild build = j.assertBuildStatus(Result.SUCCESS, project.scheduleBuild2(0));
+            FreeStyleBuild build = j.buildAndAssertSuccess(project);
 
             assertThat(matcherFolderA.test(build), equalTo(false));
             assertThat(matcherDirectJob.test(build), equalTo(false));
@@ -99,7 +104,7 @@ public class ExactJobFullNameRunMatcherTest {
 
         { // job inside the folder B
             FreeStyleProject project = j.createFreeStyleProject("job1");
-            FreeStyleBuild build = j.assertBuildStatus(Result.SUCCESS, project.scheduleBuild2(0));
+            FreeStyleBuild build = j.buildAndAssertSuccess(project);
 
             assertThat(matcherFolderA.test(build), equalTo(false));
             assertThat(matcherDirectJob.test(build), equalTo(true));
